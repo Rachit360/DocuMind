@@ -1,0 +1,29 @@
+# PDF processing
+pymupdf
+pytesseract
+pdf2image
+Pillow
+
+# Word document processing
+python-docx
+
+# Groq API client
+groq
+
+# Google Sheets integration
+gspread
+oauth2client
+
+# Environment configuration
+python-dotenv
+
+# Web interface
+gradio
+flask
+
+# HTTP client
+requests
+
+# RAG / vector search
+chromadb
+sentence-transformers

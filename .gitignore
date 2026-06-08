@@ -1,0 +1,36 @@
+# Environment files
+.env
+.venv/
+
+# Google service account credentials
+credentials.json
+
+# Optional local n8n export
+n8n_workflow.json
+
+# Local RAG vector store
+.rag_store/
+
+# Python cache files
+__pycache__/
+*.pyc
+
+# VS Code
+.vscode/
+
+# Temporary files
+*.log
+tmp/
+temp/
+
+# Database files
+*.db
+*.sqlite3
+
+# macOS / Windows
+.DS_Store
+Thumbs.db
+
+gradio.log
+gradio.err
+gradio.pid
