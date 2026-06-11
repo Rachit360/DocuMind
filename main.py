@@ -209,6 +209,75 @@ LAST_DOCUMENT_ID = None
 IMAGE_EXTENSIONS = {".png", ".jpg", ".jpeg", ".tif", ".tiff", ".bmp", ".webp"}
 
 
+def generate_workflow_recommendations(
+    document_type,
+    structured_data=None
+):
+    workflows = {
+
+        "resume": [
+            "Create candidate profile in ATS",
+            "Schedule technical interview",
+            "Perform reference verification",
+            "Generate recruiter summary"
+        ],
+
+        "invoice": [
+            "Forward to finance team",
+            "Create payment reminder",
+            "Update accounting records",
+            "Flag overdue payments"
+        ],
+
+        "contract": [
+            "Notify legal stakeholders",
+            "Extract key obligations",
+            "Schedule renewal reminders",
+            "Create CRM record"
+        ],
+
+        "report": [
+            "Assign review owner",
+            "Notify department leads",
+            "Track recommendations",
+            "Schedule follow-up review"
+        ],
+
+        "meeting_notes": [
+            "Create task tracker",
+            "Assign action items",
+            "Schedule follow-up meeting",
+            "Notify attendees"
+        ],
+
+        "email": [
+            "Generate response draft",
+            "Create follow-up task",
+            "Notify responsible stakeholder",
+            "Track pending approvals"
+        ],
+
+        "research_paper": [
+            "Create research summary",
+            "Generate implementation backlog",
+            "Assign review owner",
+            "Track citations and references"
+        ],
+
+        "generic_document": [
+            "Generate executive summary",
+            "Notify stakeholders",
+            "Create follow-up task",
+            "Store in document repository"
+        ]
+    }
+
+    return workflows.get(
+        document_type,
+        workflows["generic_document"]
+    )
+
+
 # Clean extracted document text into one normalized string.
 def clean_extracted_text(text_parts):
     """Normalize extracted text fragments into a single string."""
@@ -1150,6 +1219,16 @@ def run_document_pipeline(pdf_path, recipient_email):
     """Run the full document processing workflow and return structured results."""
     global LAST_DOCUMENT_ID, LAST_DOCUMENT_TEXT
 
+    page_count = None
+
+    if pdf_path.lower().endswith(".pdf"):
+        try:
+            doc = fitz.open(pdf_path)
+            page_count = len(doc)
+            doc.close()
+        except Exception:
+            page_count = None
+
     extracted_text = extract_text_from_file(pdf_path)
 
     if extracted_text.startswith("Error:"):
@@ -1200,6 +1279,12 @@ def run_document_pipeline(pdf_path, recipient_email):
         "document_type",
         "generic_document"
     )
+    workflow_recommendations = (
+        generate_workflow_recommendations(
+            document_type,
+            structured_data
+        )
+)
 
     # Use action item extraction only for meeting notes
     if document_type == "meeting_notes":
@@ -1237,6 +1322,9 @@ def run_document_pipeline(pdf_path, recipient_email):
 
         return {
             "status": "success",
+            "page_count": page_count,
+            "workflow_recommendations":
+                workflow_recommendations,
             "action_items": [],
             "structured_data": structured_data,
             "classification": classification,
@@ -1305,8 +1393,19 @@ def run_document_pipeline(pdf_path, recipient_email):
             "skipped": True,
         }
 
+        print(
+            "Workflow Recommendations:"
+        )
+
+        print(
+            workflow_recommendations
+      )
+
     return {
         "status": "success",
+        "page_count": page_count,
+        "workflow_recommendations":
+            workflow_recommendations,
         "action_items": action_items,
         "structured_data": structured_data,
         "classification": classification,
@@ -1619,6 +1718,7 @@ def answer_document_question(question):
 
 # Build the Gradio web interface.
 def build_ui():
+    print("USING BUILD_UI #1")
     """Build the Gradio interface."""
 
     with gr.Blocks(
@@ -1627,13 +1727,43 @@ def build_ui():
     ) as demo:
 
         gr.Markdown("""
-        # 🧠 AI Document Intelligence Platform
+# 📄 DocuMind
 
-        Upload documents, extract structured insights, generate summaries,
-        detect action items, and chat with PDFs using AI.
+### AI-Powered Document Intelligence & Workflow Automation
 
-        ---
-        """)
+Turn unstructured documents into searchable knowledge, actionable insights, and business workflows.
+
+---
+
+### Capabilities
+
+🔍 OCR & Document Processing
+
+🧠 AI Classification & Summarization
+
+📊 Structured Data Extraction
+
+✅ Action Item Detection
+
+💬 Chat With Your Documents
+
+📚 Semantic Search & RAG
+
+⚙️ Workflow Recommendations
+
+---
+
+Supported Formats:
+PDF • DOCX • TXT • PNG • JPG
+
+Powered by:
+Llama 3.3 70B • ChromaDB • Sentence Transformers
+
+---
+    
+Upload a document below to begin analysis.
+                    
+""")
 
         with gr.Row():
 
@@ -1825,15 +1955,64 @@ def build_ui():
 
 # Build a simplified interview-friendly Gradio interface.
 def build_ui():
+    print("USING BUILD_UI #2")
     """Build a simple Gradio interface with only essential sections."""
     with gr.Blocks(title="DocuMind") as demo:
-        gr.Markdown(
-            """
-            # DocuMind
+        gr.Markdown("""
+# 📄 DocuMind
 
-            Turn PDFs, images, and documents into searchable insights with AI.
-            """
-        )
+### AI-Powered Document Intelligence & Workflow Automation
+
+Turn unstructured documents into searchable knowledge, actionable insights, and business workflows.
+
+---
+
+### Capabilities
+
+🔍 OCR & Document Processing
+
+🧠 AI Classification & Summarization
+
+📊 Structured Data Extraction
+
+✅ Action Item Detection
+
+💬 Chat With Your Documents
+
+📚 Semantic Search & RAG
+
+⚙️ Workflow Recommendations
+
+---
+
+Supported Formats:
+PDF • DOCX • TXT • PNG • JPG
+
+Powered by:
+Llama 3.3 70B • ChromaDB • Sentence Transformers
+
+---
+    
+Upload a document below to begin analysis.
+                    
+""")
+        
+        with gr.Row():
+
+              gr.Markdown("""
+              ### 📂 Supported Formats
+              PDF, DOCX, TXT, Images
+              """)
+
+        gr.Markdown("""
+        ### 🤖 AI Engine
+        Llama 3.3 70B
+        """)
+
+        gr.Markdown("""
+        ### 🔍 Search
+        ChromaDB + RAG
+        """)
 
         with gr.Row():
             pdf_input = gr.File(

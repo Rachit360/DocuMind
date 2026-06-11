@@ -7,7 +7,6 @@ from uuid import uuid4
 
 RAG_STORE_DIR = Path(".rag_store")
 EMBEDDING_MODEL_NAME = "sentence-transformers/all-MiniLM-L6-v2"
-
 RAG_QUERIES = {
     "meeting_notes": "action items tasks owners deadlines decisions follow-ups commitments",
     "invoice": "invoice number vendor amount due due date payment terms approvals",
@@ -118,6 +117,7 @@ def create_document_index(document_id, text):
             {
                 "document_id": document_id,
                 "chunk_index": index,
+                "source": f"Chunk {index + 1}",
             }
             for index, _ in enumerate(chunks)
         ]
@@ -167,6 +167,7 @@ def retrieve_relevant_context(document_id, query, top_k=5):
                 {
                     "text": document,
                     "chunk_index": metadata.get("chunk_index"),
+                    "source": metadata.get("source"),
                     "score": round(1 / (1 + distance), 4) if distance is not None else None,
                 }
             )
@@ -199,7 +200,8 @@ def format_retrieved_evidence(retrieval_result):
     evidence = []
     for index, chunk in enumerate(chunks, start=1):
         text = chunk.get("text", "")
-        evidence.append(f"**Context {index}**\n\n{preview_text(text)}")
+        source = chunk.get("source", "Unknown")
+        evidence.append(f"**Source: {source}**\n\n{preview_text(text)}")
 
     return "### Retrieved Context Used\n\n" + "\n\n---\n\n".join(evidence)
 
