@@ -35,3 +35,6 @@ requests
 # RAG / vector search
 chromadb
 sentence-transformers
+
+# Optional legacy (remove if not used anymore)
+gradio
