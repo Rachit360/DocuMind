@@ -10,6 +10,14 @@ python-docx
 # Groq API client
 groq
 
+
+# RAG / vector search
+chromadb
+sentence-transformers
+
+# Data processing
+pandas
+
 # Google Sheets integration
 gspread
 oauth2client
@@ -18,7 +26,7 @@ oauth2client
 python-dotenv
 
 # Web interface
-gradio
+streamlit
 flask
 
 # HTTP client
